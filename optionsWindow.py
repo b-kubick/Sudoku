@@ -10,6 +10,7 @@ class OptionsWindow:
         self.win.geometry("400x300")
         self.win.minsize(400, 300)
         self.win.title("Sudoku")
+        self.win.iconbitmap("sudokuIcon.ico")
 
         tkinter.Tk.grid_columnconfigure(self.win, 0, weight=1)
 

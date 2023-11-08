@@ -3,6 +3,18 @@ import sys
 from solver import is_valid, find_empty_cell, solve_sudoku, generate_sudoku
 
 # Moved pygame initialization to start_game() so pygame doesn't open automatically
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+LIGHTGRAY = (200, 200, 200)
+RED = (255, 0, 0)
+LIGHTGREEN = (144, 238, 144)
+LIGHTRED = (255, 182, 193)
+LIGHTBLUE = (173, 216, 230)
+
+# Screen dimensions
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
 
 def draw_grid():
     # Draw minor lines
@@ -45,20 +57,9 @@ selected_cell = None
 
 def start_game():
     # Initialize pygame
+    ico = pygame.image.load("sudokuIcon.ico")
+    pygame.display.set_icon(ico)
     pygame.init()
-
-    # Colors
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
-    LIGHTGRAY = (200, 200, 200)
-    RED = (255, 0, 0)
-    LIGHTGREEN = (144, 238, 144)
-    LIGHTRED = (255, 182, 193)
-    LIGHTBLUE = (173, 216, 230)
-
-    # Screen dimensions
-    SCREEN_WIDTH = 600
-    SCREEN_HEIGHT = 600
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Sudoku')
