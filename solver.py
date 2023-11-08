@@ -91,7 +91,9 @@ def count_solutions(board, counter):
             count_solutions(board, counter)
             board[row][col] = 0
 
-# Generate a random Sudoku puzzle
-sudoku_puzzle = generate_sudoku()
-for row in sudoku_puzzle:
-    print(row)
+# Placed the sudoku board displaying into its own function so that python won't automatically run the code on startup
+def display_generated_sudoku():
+    # Generate a random Sudoku puzzle
+    sudoku_puzzle = generate_sudoku()
+    for row in sudoku_puzzle:
+        print(row)
