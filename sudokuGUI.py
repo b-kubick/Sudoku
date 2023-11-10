@@ -16,7 +16,7 @@ LIGHTBLUE = (173, 216, 230)
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 
-def draw_grid():
+def draw_grid(screen, puzzle):
     # Draw minor lines
     for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 9):  # Vertical lines
         pygame.draw.line(screen, LIGHTGRAY, (x, 0), (x, SCREEN_HEIGHT))
@@ -38,8 +38,8 @@ def draw_grid():
     font = pygame.font.Font(None, 36)
     for i in range(9):
         for j in range(9):
-            if sudoku_puzzle[i][j] > 0:
-                text = font.render(str(sudoku_puzzle[i][j]), True, BLACK)
+            if puzzle[i][j] > 0:
+                text = font.render(str(puzzle[i][j]), True, BLACK)
                 screen.blit(text, (j * (SCREEN_WIDTH // 9) + 15, i * (SCREEN_HEIGHT // 9) + 15))
 
 
@@ -70,16 +70,20 @@ def start_game():
     global selected_cell
     print("Starting game loop...")
     while True:
+        screen.fill(WHITE)  # Fill the screen with a white background to start off
+        draw_grid(screen, sudoku_puzzle)  #  Drawing the sudoku grid on top of the white background
+        # pygame.draw.rect(screen, RED, (50, 50, 100, 100)) # what is this red box for? - howard
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:  # Click
                 pos = pygame.mouse.get_pos()
                 print(f"Mouse clicked at position: {pos}")  #debugging print statement
                 selected_cell = get_clicked_pos(pos)    #debugging print statement
                 print(f"Selected cell: {selected_cell}")
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN:  # Number key is pressed
                 if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7,
                                  pygame.K_8, pygame.K_9]:
                     if selected_cell:
@@ -92,9 +96,4 @@ def start_game():
                             pygame.time.wait(500)
                             sudoku_puzzle[row][col] = 0
                             pass
-
-    screen.fill(WHITE)
-    draw_grid()
-    pygame.draw.rect(screen, RED, (50, 50, 100, 100))
-
-    pygame.display.flip()
+        pygame.display.flip()  # Displays board after taking all events into consideration
