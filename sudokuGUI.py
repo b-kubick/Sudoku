@@ -44,15 +44,23 @@ def draw_grid(screen, puzzle):
 
 
 
-def get_clicked_pos(pos):
+def get_clicked_pos(pos, playable_field):
     x, y = pos
     row = y // (SCREEN_HEIGHT // 9)
     col = x // (SCREEN_WIDTH // 9)
     print(f"Calculated cell: (row={row}, col={col})")   #debugging print statement
-    return row, col
+    if playable_field[row][col]:
+        return row, col
+    else:
+        print("You cannot select this cell.")  #debugging print statement
+        return None
 
 
 selected_cell = None
+
+def get_playable_field(board):
+    playable_field = [[True if board[i][j] == 0 else False for j in range(9)] for i in range(9)]
+    return playable_field
 
 
 def start_game():
@@ -66,6 +74,7 @@ def start_game():
 
     # Generate a random Sudoku puzzle for the player
     sudoku_puzzle = generate_sudoku()
+    playable_field = get_playable_field(sudoku_puzzle)
 
     global selected_cell
     print("Starting game loop...")
@@ -81,7 +90,7 @@ def start_game():
             if event.type == pygame.MOUSEBUTTONDOWN:  # Click
                 pos = pygame.mouse.get_pos()
                 print(f"Mouse clicked at position: {pos}")  #debugging print statement
-                selected_cell = get_clicked_pos(pos)    #debugging print statement
+                selected_cell = get_clicked_pos(pos, playable_field)    #debugging print statement
                 print(f"Selected cell: {selected_cell}")
             if event.type == pygame.KEYDOWN:  # Number key is pressed
                 if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7,
