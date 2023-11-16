@@ -8,7 +8,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 LIGHTGRAY = (200, 200, 200)
 RED = (255, 0, 0)
-LIGHTGREEN = (144, 238, 144)
+GREEN = (34,139,34)
 LIGHTRED = (255, 182, 193)
 LIGHTBLUE = (173, 216, 230)
 
@@ -16,7 +16,7 @@ LIGHTBLUE = (173, 216, 230)
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 
-def draw_grid(screen, puzzle):
+def draw_grid(screen, puzzle, playable_field):
     # Draw minor lines
     for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 9):  # Vertical lines
         pygame.draw.line(screen, LIGHTGRAY, (x, 0), (x, SCREEN_HEIGHT))
@@ -39,7 +39,11 @@ def draw_grid(screen, puzzle):
     for i in range(9):
         for j in range(9):
             if puzzle[i][j] > 0:
-                text = font.render(str(puzzle[i][j]), True, BLACK)
+                # TODO: Add logic for detecting incorrect inputs here
+                if playable_field[i][j]:  # Differentiating between user input and computer-generated puzzle
+                    text = font.render(str(puzzle[i][j]), True, GREEN)
+                else:
+                    text = font.render(str(puzzle[i][j]), True, BLACK)
                 screen.blit(text, (j * (SCREEN_WIDTH // 9) + 15, i * (SCREEN_HEIGHT // 9) + 15))
 
 
@@ -80,7 +84,7 @@ def start_game():
     print("Starting game loop...")
     while True:
         screen.fill(WHITE)  # Fill the screen with a white background to start off
-        draw_grid(screen, sudoku_puzzle)  #  Drawing the sudoku grid on top of the white background
+        draw_grid(screen, sudoku_puzzle, playable_field)  #  Drawing the sudoku grid on top of the white background
         # pygame.draw.rect(screen, RED, (50, 50, 100, 100)) # what is this red box for? - howard
 
         for event in pygame.event.get():
