@@ -13,26 +13,27 @@ LIGHTRED = (255, 182, 193)
 LIGHTBLUE = (173, 216, 230)
 
 # Screen dimensions
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing lines where it shouldn't be drawn
+SCREEN_HEIGHT = 650
+GRID_HEIGHT = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing lines where it shouldn't be drawn
 
 def draw_grid(screen, puzzle, playable_field):
     # Draw minor lines
     for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 9):  # Vertical lines
-        pygame.draw.line(screen, LIGHTGRAY, (x, 0), (x, SCREEN_HEIGHT))
-    for y in range(0, SCREEN_HEIGHT, SCREEN_HEIGHT // 9):  # Horizontal lines
+        pygame.draw.line(screen, LIGHTGRAY, (x, 0), (x, GRID_HEIGHT))
+    for y in range(0, GRID_HEIGHT, GRID_HEIGHT // 9):  # Horizontal lines
         pygame.draw.line(screen, LIGHTGRAY, (0, y), (SCREEN_WIDTH, y))
 
     # Draw major lines
     for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 3):  # Vertical lines
-        pygame.draw.line(screen, BLACK, (x, 0), (x, SCREEN_HEIGHT))
-    for y in range(0, SCREEN_HEIGHT, SCREEN_HEIGHT // 3):  # Horizontal lines
-        pygame.draw.line(screen, BLACK, (0, y), (SCREEN_WIDTH, y))
+        pygame.draw.line(screen, BLACK, (x-1, 0), (x-1, GRID_HEIGHT))
+    for y in range(0, SCREEN_HEIGHT, GRID_HEIGHT // 3):  # Horizontal lines
+        pygame.draw.line(screen, BLACK, (0, y-1), (SCREEN_WIDTH, y-1))
 
     # Highlight the selected cell with a light blue background
     if selected_cell:
-        x, y = selected_cell[1] * (SCREEN_WIDTH // 9), selected_cell[0] * (SCREEN_HEIGHT // 9)
-        pygame.draw.rect(screen, LIGHTBLUE, (x, y, SCREEN_WIDTH // 9, SCREEN_HEIGHT // 9))
+        x, y = selected_cell[1] * (SCREEN_WIDTH // 9), selected_cell[0] * (GRID_HEIGHT // 9)
+        pygame.draw.rect(screen, LIGHTBLUE, (x+1, y, SCREEN_WIDTH // 9, GRID_HEIGHT // 9))
 
     # Draw the numbers from the sudoku_puzzle
     font = pygame.font.Font(None, 36)
@@ -44,20 +45,21 @@ def draw_grid(screen, puzzle, playable_field):
                     text = font.render(str(puzzle[i][j]), True, GREEN)
                 else:
                     text = font.render(str(puzzle[i][j]), True, BLACK)
-                screen.blit(text, (j * (SCREEN_WIDTH // 9) + 15, i * (SCREEN_HEIGHT // 9) + 15))
+                screen.blit(text, (j * (SCREEN_WIDTH // 9) + 15, i * (GRID_HEIGHT // 9) + 15))
 
 
 
 def get_clicked_pos(pos, playable_field):
     x, y = pos
-    row = y // (SCREEN_HEIGHT // 9)
-    col = x // (SCREEN_WIDTH // 9)
-    print(f"Calculated cell: (row={row}, col={col})")   #debugging print statement
-    if playable_field[row][col]:
-        return row, col
-    else:
-        print("You cannot select this cell.")  #debugging print statement
-        return None
+    if y < GRID_HEIGHT:
+        row = y // (GRID_HEIGHT // 9)
+        col = x // (SCREEN_WIDTH // 9)
+        print(f"Calculated cell: (row={row}, col={col})")   #debugging print statement
+        if playable_field[row][col]:
+            return row, col
+        else:
+            print("You cannot select this cell.")  #debugging print statement
+            return None
 
 
 selected_cell = None

@@ -45,7 +45,7 @@ class OptionsWindow:
         if self.start_button_clicked:
             difficulty = int(self.difficulty.get())
             if difficulty != 0:
-                # TODO: Have sudoku GUI implement difficulty
+                # TODO: Have sudoku backend implement difficulty
                 self.win.destroy()
                 sudokuGUI.start_game()
 
