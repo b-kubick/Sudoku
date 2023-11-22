@@ -13,9 +13,9 @@ LIGHTRED = (255, 182, 193)
 LIGHTBLUE = (173, 216, 230)
 
 # Screen dimensions
-SCREEN_WIDTH = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing where it shouldn't go
+SCREEN_WIDTH = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing lines where it shouldn't be drawn
 SCREEN_HEIGHT = 650
-GRID_HEIGHT = 594  # Changed from 600: (594 // (600 // 9) = 9)
+GRID_HEIGHT = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing lines where it shouldn't be drawn
 
 def draw_grid(screen, puzzle, playable_field):
     # Draw minor lines
