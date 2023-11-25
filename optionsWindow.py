@@ -1,60 +1,65 @@
+import pygame
 import sudokuGUI
 import tkinter
 from tkinter import *
 from tkinter import ttk
 
+
 class OptionsWindow:
     def __init__(self):
-        # Creating main window
-        self.win = tkinter.Tk()
-        self.win.geometry("400x300")
-        self.win.minsize(400, 300)
-        self.win.title("Sudoku")
-        self.win.iconbitmap("sudokuIcon.ico")
+        pygame.init()
+        self.win = pygame.display.set_mode((400, 300))
+        pygame.display.set_caption("Sudoku")
 
-        tkinter.Tk.grid_columnconfigure(self.win, 0, weight=1)
+        self.difficulty = 0
+        self.font = pygame.font.Font(None, 36)
+        self.diff_texts = ["Easy", "Normal", "Hard"]
+        self.default_colors = [(50, 200, 50), (200, 200, 50), (200, 50, 50)]
+        self.hover_colors = [(100, 255, 100), (255, 255, 100), (255, 100, 100)]
+        self.button_rects = [pygame.Rect(150, 100 + i * 70, 100, 50) for i in range(3)]
 
-        # variable that controls start/stop flow of the program
-        self.start_button_clicked = False
+        self.main_loop()
 
-        self.difficulty = IntVar()
-        welcomeLabel = ttk.Label(self.win, text="Welcome to Sudoku!\n"
-                                           "To begin, select a difficulty and click the Start Game button.")
-        welcomeLabel.grid(row=0, column=0, columnspan=2)
+    def draw_text(self, text, pos, color, size):
+        text_surface = self.font.render(text, True, color)
+        text_rect = text_surface.get_rect(center=pos)
+        self.win.blit(text_surface, text_rect)
 
-        diff1 = ttk.Radiobutton(self.win, text="Easy", value=1, variable=self.difficulty, command=self.buttonEnabler)
-        diff2 = ttk.Radiobutton(self.win, text="Normal", value=2, variable=self.difficulty, command=self.buttonEnabler)
-        diff3 = ttk.Radiobutton(self.win, text="Hard", value=3, variable=self.difficulty, command=self.buttonEnabler)
+    def draw_buttons(self):
+        for i, button_rect in enumerate(self.button_rects):
+            button_color = self.default_colors[i]
+            if button_rect.collidepoint(pygame.mouse.get_pos()):
+                button_color = self.hover_colors[i]
 
-        difficulties = [diff1, diff2, diff3]
-        for each in range(0, 3):
-            difficulties[each].grid(row=each + 1, column=0, sticky="w")
+            pygame.draw.rect(self.win, button_color, button_rect)
+            self.draw_text(self.diff_texts[i], button_rect.center, (0, 0, 0), 24)
 
-        self.startButton = ttk.Button(self.win, text="Start Game", state="disabled",
-                                      command=self.start_button_pressed)
+    def main_loop(self):
+        running = True
+        while running:
+            self.win.fill((255, 255, 255))  # Clear the screen
 
-        self.startButton.grid(row=4, column=1, padx=10, pady=(0, 10), sticky="e")
+            title_pos = (200, 30)
+            subtitle_pos = (200, 70)
+            self.draw_text("Sudoku", title_pos, (0, 0, 0), 48)
+            self.draw_text("Choose your difficulty", subtitle_pos, (100, 100, 100), 18)
 
-    def buttonEnabler(self):
-        if int(self.difficulty.get()) != 0:
-            self.startButton.config(state="normal")
-            self.start_button_clicked = True  # once all choices are selected, status of button click changed to true
+            self.draw_buttons()
 
-    def start_button_pressed(self, event=None):
-        # if the button is clicked, get the value of each option and put it into list
-        if self.start_button_clicked:
-            difficulty = int(self.difficulty.get())
-            if difficulty != 0:
-                # TODO: Have sudoku backend implement difficulty
-                self.win.destroy()
-                sudokuGUI.start_game()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    for i, button_rect in enumerate(self.button_rects):
+                        if button_rect.collidepoint(mouse_pos):
+                            self.difficulty = i + 1
+                            sudokuGUI.start_game()  # Assuming this function starts the game
+                            running = False  # Exit the loop to start the game
 
-    def run(self):
-        try:
-            # Running Window
-            self.win.mainloop()
-        except UnicodeDecodeError:  # if error occurs, let user exit the app gui. needs to rerun and try again
-            error_msg = "\nPlease re-run the program."
-            print(error_msg)
-            input("Press any key to exit")
-            pass
+            pygame.display.update()
+
+        pygame.quit()
+
+if __name__ == "__main__":
+    OptionsWindow().run()
