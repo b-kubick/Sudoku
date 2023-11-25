@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 from solver import is_valid, find_empty_cell, solve_sudoku, generate_sudoku
 
 # Moved pygame initialization to start_game() so pygame doesn't open automatically
@@ -69,6 +70,25 @@ def get_playable_field(board):
     return playable_field
 
 
+def provide_hint(screen, sudoku_puzzle, playable_field):
+    cells = [(row, col) for row in range(9) for col in range(9)]
+    random.shuffle(cells)
+    
+    for row, col in cells:
+        if playable_field[row][col] and sudoku_puzzle[row][col] == 0:
+            for num in range(1, 10):
+                if is_valid(sudoku_puzzle, row, col, num):
+                    x, y = col * (SCREEN_WIDTH // 9), row * (GRID_HEIGHT // 9)
+                    pygame.draw.rect(screen, LIGHTBLUE, (x+1, y, SCREEN_WIDTH // 9, GRID_HEIGHT // 9))
+                    pygame.display.flip()
+                    pygame.time.delay(500)  # Show hint for 0.5 seconds
+                    return row, col, num  # Return the hint number
+
+    return None, None, None  # No valid hint found
+
+
+
+
 def start_game():
     # Initialize pygame
     ico = pygame.image.load("sudokuIcon.ico")
@@ -84,10 +104,20 @@ def start_game():
 
     global selected_cell
     print("Starting game loop...")
+
+    hint_button = pygame.Rect(225, 600, 150, 40)
+    hints = 5  # Number of available hints
+
     while True:
         screen.fill(WHITE)  # Fill the screen with a white background to start off
         draw_grid(screen, sudoku_puzzle, playable_field)  #  Drawing the sudoku grid on top of the white background
         # pygame.draw.rect(screen, RED, (50, 50, 100, 100)) # what is this red box for? - howard
+
+        # Draw Hint button
+        pygame.draw.rect(screen, LIGHTGRAY, hint_button)
+        font = pygame.font.Font(None, 28)
+        hint_text = font.render(f"Hints: {hints}", True, BLACK)
+        screen.blit(hint_text, (240, 610))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -98,6 +128,26 @@ def start_game():
                 print(f"Mouse clicked at position: {pos}")  #debugging print statement
                 selected_cell = get_clicked_pos(pos, playable_field)    #debugging print statement
                 print(f"Selected cell: {selected_cell}")
+                # Check if hint button is clicked
+                if hint_button.collidepoint(event.pos):
+                    if hints > 0:
+                        # Perform hint logic here
+                        hint_row, hint_col, hint_num = provide_hint(screen, sudoku_puzzle, playable_field)
+                        if hint_row is not None and hint_col is not None and hint_num is not None:
+                            if hint_num != 0:
+                                # Draw the hint number (blinking with lower opacity)
+                                font = pygame.font.Font(None, 36)
+                                hint_text = font.render(str(hint_num), True, (0, 0, 0))
+                                for i in range(6):  # Blink hint for 3 seconds (6 frames at 500ms delay)
+                                    if i % 2 == 0:
+                                        screen.blit(hint_text, (hint_col * (SCREEN_WIDTH // 9) + 15, hint_row * (GRID_HEIGHT // 9) + 15))
+                                    else:
+                                        screen.fill(WHITE, (hint_col * (SCREEN_WIDTH // 9) + 15, hint_row * (GRID_HEIGHT // 9) + 15, SCREEN_WIDTH // 9, GRID_HEIGHT // 9))
+                                    pygame.display.flip()
+                                    pygame.time.delay(500)
+                                hints -= 1
+                                print("Hint provided!")
+
             if event.type == pygame.KEYDOWN:  # Number key is pressed
                 if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7,
                                  pygame.K_8, pygame.K_9]:
