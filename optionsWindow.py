@@ -1,8 +1,5 @@
 import pygame
 import sudokuGUI
-import tkinter
-from tkinter import *
-from tkinter import ttk
 
 
 class OptionsWindow:
