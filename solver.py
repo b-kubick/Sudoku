@@ -42,7 +42,17 @@ def find_empty_cell(board):
               return (i, j)  # Return row, col tuple for the empty cell
   return None
 
-def generate_sudoku(num_clues=20):
+def generate_sudoku(difficulty):
+    # Set the number of clues based on difficulty level
+    if difficulty == 'easy':
+        num_clues = 40
+    elif difficulty == 'medium':
+        num_clues = 30
+    elif difficulty == 'difficult':
+        num_clues = 24
+    else:
+        raise ValueError("Invalid difficulty level. Choose 'easy', 'medium', or 'difficult'.")
+    
     # Start with an empty board
     board = [[0 for _ in range(9)] for _ in range(9)]
 
