@@ -13,7 +13,7 @@ class OptionsWindow:
 
         self.difficulty = 0
         self.font = pygame.font.Font(None, 36)
-        self.diff_texts = ["Easy", "Normal", "Hard"]
+        self.diff_texts = ["Easy", "Medium", "Hard"]
         self.default_colors = [(50, 200, 50), (200, 200, 50), (200, 50, 50)]
         self.hover_colors = [(100, 255, 100), (255, 255, 100), (255, 100, 100)]
         self.button_rects = [pygame.Rect(150, 100 + i * 70, 100, 50) for i in range(3)]
@@ -53,8 +53,9 @@ class OptionsWindow:
                     mouse_pos = pygame.mouse.get_pos()
                     for i, button_rect in enumerate(self.button_rects):
                         if button_rect.collidepoint(mouse_pos):
-                            self.difficulty = i + 1
-                            sudokuGUI.start_game()  # Assuming this function starts the game
+                            self.difficulty = i
+                            difficulty_str = ["Easy", "Medium", "Hard"][self.difficulty]
+                            sudokuGUI.start_game(difficulty_str)  # Assuming this function starts the game
                             running = False  # Exit the loop to start the game
 
             pygame.display.update()
