@@ -89,7 +89,7 @@ def provide_hint(screen, sudoku_puzzle, playable_field):
 
 
 
-def start_game():
+def start_game(difficulty):
     # Initialize pygame
     ico = pygame.image.load("sudokuIcon.ico")
     pygame.display.set_icon(ico)
@@ -99,7 +99,7 @@ def start_game():
     pygame.display.set_caption('Sudoku')
 
     # Generate a random Sudoku puzzle for the player
-    sudoku_puzzle = generate_sudoku()
+    sudoku_puzzle = generate_sudoku(difficulty)
     playable_field = get_playable_field(sudoku_puzzle)
 
     global selected_cell
