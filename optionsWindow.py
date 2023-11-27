@@ -7,6 +7,8 @@ from tkinter import ttk
 
 class OptionsWindow:
     def __init__(self):
+        ico = pygame.image.load("sudokuIcon.ico")
+        pygame.display.set_icon(ico)
         pygame.init()
         self.win = pygame.display.set_mode((400, 300))
         pygame.display.set_caption("Sudoku")
