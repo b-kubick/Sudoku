@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 from solver import is_valid, find_empty_cell, solve_sudoku, generate_sudoku
+import optionsWindow
 
 # Moved pygame initialization to start_game() so pygame doesn't open automatically
 # Colors
@@ -99,6 +100,7 @@ def start_game(difficulty):
     pygame.display.set_caption('Sudoku')
 
     # Generate a random Sudoku puzzle for the player
+    print(f"Starting game with difficulty: {difficulty}")   # debugging print statement
     sudoku_puzzle = generate_sudoku(difficulty)
     playable_field = get_playable_field(sudoku_puzzle)
 

@@ -44,11 +44,11 @@ def find_empty_cell(board):
 
 def generate_sudoku(difficulty):
     # Set the number of clues based on difficulty level
-    if difficulty == 'Easy':
+    if difficulty == "Easy":
         num_clues = 40
-    elif difficulty == 'Medium':
+    elif difficulty == "Medium":
         num_clues = 30
-    elif difficulty == 'Hard':
+    elif difficulty == "Hard":
         num_clues = 24
     else:
         raise ValueError("Invalid difficulty level. Choose 'Easy', 'Medium', or 'Hard'.")
@@ -82,6 +82,7 @@ def generate_sudoku(difficulty):
         if counter[0] != 1:
             board[row][col] = backup
             attempts -= 1
+    print(f"Generating puzzle with difficulty: {difficulty}, num_clues: {num_clues}") # debugging print statement
 
     return board
 
