@@ -46,7 +46,7 @@ def generate_sudoku(difficulty):
     # Set the number of clues based on difficulty level
     if difficulty == 'Easy':
         num_clues = 40
-    elif difficulty == 'Medium':
+    elif difficulty == 'Medium':    
         num_clues = 30
     elif difficulty == 'Hard':
         num_clues = 24
@@ -65,9 +65,9 @@ def generate_sudoku(difficulty):
         row = random.randint(0, 8)
         col = random.randint(0, 8)
 
-        while board[row][col] == 0:
-            row = random.randint(0, 8)
-            col = random.randint(0, 8)
+        # Skip if this cell is already empty
+        if board[row][col] == 0:
+            continue
 
         backup = board[row][col]
         board[row][col] = 0
@@ -80,8 +80,11 @@ def generate_sudoku(difficulty):
         count_solutions(board_copy, counter)
 
         if counter[0] != 1:
-            board[row][col] = backup
-            attempts -= 1
+            board[row][col] = backup  # Restore the number if not a unique solution
+        else:
+            attempts -= 1  # Successfully removed a number
+
+
 
     return board
 
