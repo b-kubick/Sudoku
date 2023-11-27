@@ -65,9 +65,9 @@ def generate_sudoku(difficulty):
         row = random.randint(0, 8)
         col = random.randint(0, 8)
 
-        while board[row][col] == 0:
-            row = random.randint(0, 8)
-            col = random.randint(0, 8)
+        # Skip if this cell is already empty
+        if board[row][col] == 0:
+            continue
 
         backup = board[row][col]
         board[row][col] = 0
@@ -80,10 +80,9 @@ def generate_sudoku(difficulty):
         count_solutions(board_copy, counter)
 
         if counter[0] != 1:
-            board[row][col] = backup
-            attempts -= 1
-    print(f"Generating puzzle with difficulty: {difficulty}, num_clues: {num_clues}") # debugging print statement
-
+            board[row][col] = backup  # Restore the number if not a unique solution
+        else:
+            attempts -= 1  # Successfully removed a number
     return board
 
 def count_solutions(board, counter):
