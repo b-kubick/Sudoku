@@ -18,21 +18,23 @@ def is_valid(board, row, col, num):
   return True
 
 def solve_sudoku(board):
-  # This function primarily implements backtracking
-
-  empty_cell = find_empty_cell(board)
-  if not empty_cell:
+    # This function primarily implements backtracking
+    
+    empty_cell = find_empty_cell(board)
+    if not empty_cell:
       return True  # Puzzle solved
-  row, col = empty_cell
-
-  for num in range(1, 10):  # Sudoku numbers: 1 to 9
+    row, col = empty_cell
+    
+    numbers = list(range (1, 10))
+    random.shuffle(numbers)
+    for num in numbers:  # Sudoku numbers: 1 to 9
       if is_valid(board, row, col, num):  # Check constraints before placing a number
           board[row][col] = num
           if solve_sudoku(board):  # Recursive backtracking step
               return True  # Continue with this choice
           board[row][col] = 0  # Reset cell and backtrack
-
-  return False  # Trigger backtracking
+    
+    return False  # Trigger backtracking
 
 def find_empty_cell(board):
   # This function finds the next empty cell to be filled
