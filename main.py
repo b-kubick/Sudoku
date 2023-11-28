@@ -5,7 +5,6 @@ def main():
     # For now, we'll just start the game
 
     runtime = OptionsWindow()
-    runtime.run()
 
 if __name__ == "__main__":
     main()

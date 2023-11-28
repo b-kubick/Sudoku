@@ -1,6 +1,8 @@
 import pygame
 import sys
 import random
+import copy
+from tkinter import messagebox
 from solver import is_valid, find_empty_cell, solve_sudoku, generate_sudoku
 
 # Moved pygame initialization to start_game() so pygame doesn't open automatically
@@ -18,7 +20,7 @@ SCREEN_WIDTH = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing 
 SCREEN_HEIGHT = 650
 GRID_HEIGHT = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing lines where it shouldn't be drawn
 
-def draw_grid(screen, puzzle, playable_field):
+def draw_grid(screen, puzzle, playable_field, user_view):
     # Draw minor lines
     for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 9):  # Vertical lines
         pygame.draw.line(screen, LIGHTGRAY, (x, 0), (x, GRID_HEIGHT))
@@ -40,14 +42,29 @@ def draw_grid(screen, puzzle, playable_field):
     font = pygame.font.Font(None, 36)
     for i in range(9):
         for j in range(9):
-            if puzzle[i][j] > 0:
-                # TODO: Add logic for detecting incorrect inputs here
+            if user_view[i][j] > 0:
                 if playable_field[i][j]:  # Differentiating between user input and computer-generated puzzle
-                    text = font.render(str(puzzle[i][j]), True, GREEN)
+                    if user_view[i][j] == puzzle[i][j]:
+                        text = font.render(str(puzzle[i][j]), True, GREEN)
+                    else:
+                        text = font.render(str(user_view[i][j]), True, RED)
                 else:
                     text = font.render(str(puzzle[i][j]), True, BLACK)
                 screen.blit(text, (j * (SCREEN_WIDTH // 9) + 15, i * (GRID_HEIGHT // 9) + 15))
 
+
+def draw_grid_lines_only(screen):  # function only to draw gridlines so that a selected box doesn't overlap the grid lines
+    # Draw minor lines
+    for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 9):  # Vertical lines
+        pygame.draw.line(screen, LIGHTGRAY, (x, 0), (x, GRID_HEIGHT))
+    for y in range(0, GRID_HEIGHT, GRID_HEIGHT // 9):  # Horizontal lines
+        pygame.draw.line(screen, LIGHTGRAY, (0, y), (SCREEN_WIDTH, y))
+
+    # Draw major lines
+    for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 3):  # Vertical lines
+        pygame.draw.line(screen, BLACK, (x - 1, 0), (x - 1, GRID_HEIGHT))
+    for y in range(0, SCREEN_HEIGHT, GRID_HEIGHT // 3):  # Horizontal lines
+        pygame.draw.line(screen, BLACK, (0, y - 1), (SCREEN_WIDTH, y - 1))
 
 
 def get_clicked_pos(pos, playable_field):
@@ -87,6 +104,10 @@ def provide_hint(screen, sudoku_puzzle, playable_field):
     return None, None, None  # No valid hint found
 
 
+def game_over_popup():
+    messagebox.showinfo('Game Over!', 'You entered too many mistakes.')
+    pygame.quit()
+    sys.exit()
 
 
 def start_game(difficulty):
@@ -101,16 +122,28 @@ def start_game(difficulty):
     # Generate a random Sudoku puzzle for the player
     sudoku_puzzle = generate_sudoku(difficulty)
     playable_field = get_playable_field(sudoku_puzzle)
+    user_view = copy.deepcopy(sudoku_puzzle)
 
     global selected_cell
     print("Starting game loop...")
 
+    if difficulty == "Easy":
+        mistakes_remaining = 6
+    elif difficulty == "Medium":
+        mistakes_remaining = 4
+    elif difficulty == "Hard":
+        mistakes_remaining = 2
+    else:
+        mistakes_remaining = 0
+
     hint_button = pygame.Rect(225, 600, 150, 40)
     hints = 5  # Number of available hints
 
+    last_input_was_mistake = False  # Variable for checking if the last input was a mistake
+
     while True:
         screen.fill(WHITE)  # Fill the screen with a white background to start off
-        draw_grid(screen, sudoku_puzzle, playable_field)  #  Drawing the sudoku grid on top of the white background
+        draw_grid(screen, sudoku_puzzle, playable_field, user_view)  #  Drawing the sudoku grid on top of the white background
         # pygame.draw.rect(screen, RED, (50, 50, 100, 100)) # what is this red box for? - howard
 
         # Draw Hint button
@@ -118,6 +151,18 @@ def start_game(difficulty):
         font = pygame.font.Font(None, 28)
         hint_text = font.render(f"Hints: {hints}", True, BLACK)
         screen.blit(hint_text, (240, 610))
+        if last_input_was_mistake:
+            last_mistake_text = font.render("Incorrect input!", True, RED)
+            screen.blit(last_mistake_text, (440, 610))
+        if mistakes_remaining <= 1:
+            mistakes_text = font.render(f"Allowed Mistakes: {mistakes_remaining}", True, RED)
+        else:
+            mistakes_text = font.render(f"Allowed Mistakes: {mistakes_remaining}", True, BLACK)
+        screen.blit(mistakes_text, (10, 610))
+
+        if mistakes_remaining <= 0:
+            pygame.display.flip()  # Update the screen so the user can see that they have no mistakes left
+            game_over_popup()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -142,7 +187,8 @@ def start_game(difficulty):
                                     if i % 2 == 0:
                                         screen.blit(hint_text, (hint_col * (SCREEN_WIDTH // 9) + 15, hint_row * (GRID_HEIGHT // 9) + 15))
                                     else:
-                                        screen.fill(WHITE, (hint_col * (SCREEN_WIDTH // 9) + 15, hint_row * (GRID_HEIGHT // 9) + 15, SCREEN_WIDTH // 9, GRID_HEIGHT // 9))
+                                        screen.fill(WHITE, (hint_col * (SCREEN_WIDTH // 9) + 1, hint_row * (GRID_HEIGHT // 9) + 1, SCREEN_WIDTH // 9, GRID_HEIGHT // 9))
+                                    draw_grid_lines_only(screen)  # Make sure the flashing doesn't overlap with the grid
                                     pygame.display.flip()
                                     pygame.time.delay(500)
                                 hints -= 1
@@ -154,11 +200,18 @@ def start_game(difficulty):
                     if selected_cell:
                         row, col = selected_cell
                         num = event.key - pygame.K_0
-                        if is_valid(sudoku_puzzle, row, col, num):  # Assuming sudoku_puzzle is your board
-                            sudoku_puzzle[row][col] = num
-                        else:
-                            sudoku_puzzle[row][col] = -1
-                            pygame.time.wait(500)
-                            sudoku_puzzle[row][col] = 0
+                        if num == sudoku_puzzle[row][col]:  # Ignore if user enters the same number in the same tile
                             pass
+                        elif is_valid(sudoku_puzzle, row, col, num):  # Assuming sudoku_puzzle is your board
+                            sudoku_puzzle[row][col] = num
+                            user_view[row][col] = num
+                            last_input_was_mistake = False
+                        else:
+                            mistakes_remaining -= 1
+                            sudoku_puzzle[row][col] = -1
+                            user_view[row][col] = num
+                            sudoku_puzzle[row][col] = 0
+                            last_input_was_mistake = True
+                            pass
+        draw_grid_lines_only(screen)
         pygame.display.flip()  # Displays board after taking all events into consideration
