@@ -21,7 +21,7 @@ SCREEN_WIDTH = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing 
 SCREEN_HEIGHT = 650
 GRID_HEIGHT = 594  # Changed from 600: (594 // (600 // 9) = 9), avoids drawing lines where it shouldn't be drawn
 
-def draw_grid(screen, puzzle, playable_field, user_view):
+def draw_grid(screen, puzzle, playable_field, solved_puzzle):
     # Draw minor lines
     for x in range(0, SCREEN_WIDTH, SCREEN_WIDTH // 9):  # Vertical lines
         pygame.draw.line(screen, LIGHTGRAY, (x, 0), (x, GRID_HEIGHT))
@@ -43,12 +43,12 @@ def draw_grid(screen, puzzle, playable_field, user_view):
     font = pygame.font.Font(None, 36)
     for i in range(9):
         for j in range(9):
-            if user_view[i][j] > 0:
+            if puzzle[i][j] > 0:
                 if playable_field[i][j]:  # Differentiating between user input and computer-generated puzzle
-                    if user_view[i][j] == puzzle[i][j]:
+                    if puzzle[i][j] == solved_puzzle[i][j]:
                         text = font.render(str(puzzle[i][j]), True, GREEN)
                     else:
-                        text = font.render(str(user_view[i][j]), True, RED)
+                        text = font.render(str(puzzle[i][j]), True, RED)
                 else:
                     text = font.render(str(puzzle[i][j]), True, BLACK)
                 screen.blit(text, (j * (SCREEN_WIDTH // 9) + 15, i * (GRID_HEIGHT // 9) + 15))
@@ -134,7 +134,8 @@ def start_game(difficulty):
     # Generate a random Sudoku puzzle for the player
     sudoku_puzzle = generate_sudoku(difficulty)
     playable_field = get_playable_field(sudoku_puzzle)
-    user_view = copy.deepcopy(sudoku_puzzle)
+    solved_puzzle = copy.deepcopy(sudoku_puzzle)
+    solve_sudoku(solved_puzzle)
 
     global selected_cell
     print("Starting game loop...")
@@ -146,7 +147,7 @@ def start_game(difficulty):
     elif difficulty == "Hard":
         mistakes_remaining = 2
     else:
-        mistakes_remaining = 0
+        mistakes_remaining = 1
 
     hint_button = pygame.Rect(225, 600, 150, 40)
     hints = 5  # Number of available hints
@@ -154,7 +155,7 @@ def start_game(difficulty):
     last_input_was_mistake = False  # Variable for checking if the last input was a mistake
     while True:
         screen.fill(WHITE)  # Fill the screen with a white background to start off
-        draw_grid(screen, sudoku_puzzle, playable_field, user_view)  #  Drawing the sudoku grid on top of the white background
+        draw_grid(screen, sudoku_puzzle, playable_field, solved_puzzle)  #  Drawing the sudoku grid on top of the white background
         # pygame.draw.rect(screen, RED, (50, 50, 100, 100)) # what is this red box for? - howard
         game_solved = True
         for row in sudoku_puzzle:
@@ -219,22 +220,18 @@ def start_game(difficulty):
                         row, col = selected_cell
                         if event.key != pygame.K_BACKSPACE:
                             num = event.key - pygame.K_0
-                            if num == user_view[row][col]:  # Ignore if user enters the same number in the same tile
+                            if num == sudoku_puzzle[row][col]:  # Ignore if user enters the same number in the same tile
                                 pass
-                            elif is_valid(sudoku_puzzle, row, col, num):  # Assuming sudoku_puzzle is your board
+                            elif num == solved_puzzle[row][col]:  # Assuming sudoku_puzzle is your board
                                 sudoku_puzzle[row][col] = num
-                                user_view[row][col] = num
                                 last_input_was_mistake = False
                             else:
                                 mistakes_remaining -= 1
-                                sudoku_puzzle[row][col] = -1
-                                user_view[row][col] = num
-                                sudoku_puzzle[row][col] = 0
+                                sudoku_puzzle[row][col] = num
                                 last_input_was_mistake = True
                                 pass
                         else:  # Backspace
                             sudoku_puzzle[row][col] = 0
-                            user_view[row][col] = 0
                             last_input_was_mistake = False
                             pass
         draw_grid_lines_only(screen)

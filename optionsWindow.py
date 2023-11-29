@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 import sudokuGUI
 
@@ -34,8 +36,7 @@ class OptionsWindow:
             self.draw_text(self.diff_texts[i], button_rect.center, (0, 0, 0), 24)
 
     def main_loop(self):
-        running = True
-        while running:
+        while True:
             self.win.fill((255, 255, 255))  # Clear the screen
 
             title_pos = (200, 30)
@@ -47,7 +48,8 @@ class OptionsWindow:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    pygame.quit()
+                    sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     for i, button_rect in enumerate(self.button_rects):
