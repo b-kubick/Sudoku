@@ -88,14 +88,14 @@ def get_playable_field(board):
     return playable_field
 
 
-def provide_hint(screen, sudoku_puzzle, playable_field):
+def provide_hint(screen, sudoku_puzzle, playable_field, solved_puzzle):
     cells = [(row, col) for row in range(9) for col in range(9)]
     random.shuffle(cells)
     
     for row, col in cells:
         if playable_field[row][col] and sudoku_puzzle[row][col] == 0:
             for num in range(1, 10):
-                if is_valid(sudoku_puzzle, row, col, num):
+                if num == solved_puzzle[row][col]:
                     x, y = col * (SCREEN_WIDTH // 9), row * (GRID_HEIGHT // 9)
                     pygame.draw.rect(screen, LIGHTBLUE, (x+1, y, SCREEN_WIDTH // 9, GRID_HEIGHT // 9))
                     pygame.display.flip()
@@ -196,7 +196,7 @@ def start_game(difficulty):
                 if hint_button.collidepoint(event.pos):
                     if hints > 0:
                         # Perform hint logic here
-                        hint_row, hint_col, hint_num = provide_hint(screen, sudoku_puzzle, playable_field)
+                        hint_row, hint_col, hint_num = provide_hint(screen, sudoku_puzzle, playable_field, solved_puzzle)
                         if hint_row is not None and hint_col is not None and hint_num is not None:
                             if hint_num != 0:
                                 # Draw the hint number (blinking with lower opacity)
