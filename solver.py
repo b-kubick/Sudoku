@@ -1,5 +1,5 @@
 import random
-
+import copy
 def is_valid(board, row, col, num):
   # This function checks the constraints of Sudoku
 
@@ -45,6 +45,13 @@ def find_empty_cell(board):
   return None
 
 def generate_sudoku(difficulty):
+    
+    # Start with an empty board
+    board = [[0 for _ in range(9)] for _ in range(9)]
+
+    # Fill the board completely
+    solve_sudoku(board)
+    
     # Set the number of clues based on difficulty level
     if difficulty == 'Easy':
         num_clues = 40
@@ -54,61 +61,70 @@ def generate_sudoku(difficulty):
         num_clues = 24
     else:
         raise ValueError("Invalid difficulty level. Choose 'Easy', 'Medium', or 'Hard'.")
-    
-    # Start with an empty board
-    board = [[0 for _ in range(9)] for _ in range(9)]
-
-    # Fill the board completely
-    solve_sudoku(board)
 
     # Remove numbers to create the puzzle
     attempts = 81 - num_clues
     while attempts > 0:
         row = random.randint(0, 8)
         col = random.randint(0, 8)
+        if board[row][col] != 0:
+            board[row][col] = 0
+            attempts -= 1
 
-        # Skip if this cell is already empty
-        if board[row][col] == 0:
-            continue
-
-        backup = board[row][col]
-        board[row][col] = 0
-
-        # Make a copy of the board to test it
-        board_copy = [row.copy() for row in board]
-
-        # Count the number of solutions
-        counter = [0]
-        count_solutions(board_copy, counter)
-
-        if counter[0] != 1:
-            board[row][col] = backup  # Restore the number if not a unique solution
-        else:
-            attempts -= 1  # Successfully removed a number
-
-
+    # Ensure there is a unique solution
+    if not ensure_unique_solution(board):
+        return generate_sudoku(difficulty)  # Retry if the solution is not unique
 
     return board
 
-def count_solutions(board, counter):
-    if counter[0] > 1:
-        return  # Already found multiple solutions, no need to continue
+def ensure_unique_solution(board):
+    # Check if the board has a unique solution
+    solutions = []
+    count_solutions(board, solutions, limit=1)
+    return len(solutions) == 1
+
+
+def count_solutions(board, solutions, limit=1):
 
     empty_cell = find_empty_cell(board)
     if not empty_cell:
-        counter[0] += 1
+        solutions.append([row[:] for row in board])
         return
+    if len(solutions) >=limit:
+        return
+    
     row, col = empty_cell
-
     for num in range(1, 10):
         if is_valid(board, row, col, num):
             board[row][col] = num
-            count_solutions(board, counter)
+            count_solutions(board, solutions, limit)
             board[row][col] = 0
+
+def check_user_input(board, solved_board, row, col, num):
+    # Check if the user's input is correct based on the solved board
+    if solved_board[row][col] == num:
+        board[row][col] = num  # Place the number on the board
+        return True
+    else:
+        return False
 
 # Placed the sudoku board displaying into its own function so that python won't automatically run the code on startup
 def display_generated_sudoku():
     # Generate a random Sudoku puzzle
-    sudoku_puzzle = generate_sudoku()
+    sudoku_puzzle = generate_sudoku(difficulty="Easy")
     for row in sudoku_puzzle:
         print(row)
+
+    # Make a copy of the puzzle to solve
+    solved_sudoku = copy.deepcopy(sudoku_puzzle)
+
+    # Solve the copied puzzle
+    if solve_sudoku(solved_sudoku):
+        print("\nSolved Sudoku Puzzle:")
+        for row in solved_sudoku:
+            print(row)
+    else:
+        print("\nNo solution found for the Sudoku Puzzle.")
+
+if __name__ == "__main__":
+    display_generated_sudoku()
