@@ -4,6 +4,7 @@ import random
 import copy
 from tkinter import messagebox
 from solver import is_valid, find_empty_cell, solve_sudoku, generate_sudoku
+import optionsWindow
 
 # Moved pygame initialization to start_game() so pygame doesn't open automatically
 # Colors
@@ -106,8 +107,19 @@ def provide_hint(screen, sudoku_puzzle, playable_field):
 
 def game_over_popup():
     messagebox.showinfo('Game Over!', 'You entered too many mistakes.')
-    pygame.quit()
-    sys.exit()
+    optionsWindow.OptionsWindow()
+
+def win_popup(screen):
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(1000)
+    font = pygame.font.Font(None, 60)
+    screen.fill(WHITE)
+    basic_win_text = font.render("You win!", True, BLACK)
+    screen.blit(basic_win_text, (210, 295))
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(1000)
+    messagebox.showinfo('Congratulations!', 'You successfully solved the sudoku puzzle!')
+    optionsWindow.OptionsWindow()
 
 
 def start_game(difficulty):
@@ -140,11 +152,17 @@ def start_game(difficulty):
     hints = 5  # Number of available hints
 
     last_input_was_mistake = False  # Variable for checking if the last input was a mistake
-
     while True:
         screen.fill(WHITE)  # Fill the screen with a white background to start off
         draw_grid(screen, sudoku_puzzle, playable_field, user_view)  #  Drawing the sudoku grid on top of the white background
         # pygame.draw.rect(screen, RED, (50, 50, 100, 100)) # what is this red box for? - howard
+        game_solved = True
+        for row in sudoku_puzzle:
+            if 0 in row:
+                game_solved = False
+                break
+        if game_solved:
+            win_popup(screen)
 
         # Draw Hint button
         pygame.draw.rect(screen, LIGHTGRAY, hint_button)
@@ -194,24 +212,30 @@ def start_game(difficulty):
                                 hints -= 1
                                 print("Hint provided!")
 
-            if event.type == pygame.KEYDOWN:  # Number key is pressed
+            if event.type == pygame.KEYDOWN:  # Number key or backspace is pressed
                 if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7,
-                                 pygame.K_8, pygame.K_9]:
+                                 pygame.K_8, pygame.K_9, pygame.K_BACKSPACE]:
                     if selected_cell:
                         row, col = selected_cell
-                        num = event.key - pygame.K_0
-                        if num == sudoku_puzzle[row][col]:  # Ignore if user enters the same number in the same tile
-                            pass
-                        elif is_valid(sudoku_puzzle, row, col, num):  # Assuming sudoku_puzzle is your board
-                            sudoku_puzzle[row][col] = num
-                            user_view[row][col] = num
-                            last_input_was_mistake = False
-                        else:
-                            mistakes_remaining -= 1
-                            sudoku_puzzle[row][col] = -1
-                            user_view[row][col] = num
+                        if event.key != pygame.K_BACKSPACE:
+                            num = event.key - pygame.K_0
+                            if num == user_view[row][col]:  # Ignore if user enters the same number in the same tile
+                                pass
+                            elif is_valid(sudoku_puzzle, row, col, num):  # Assuming sudoku_puzzle is your board
+                                sudoku_puzzle[row][col] = num
+                                user_view[row][col] = num
+                                last_input_was_mistake = False
+                            else:
+                                mistakes_remaining -= 1
+                                sudoku_puzzle[row][col] = -1
+                                user_view[row][col] = num
+                                sudoku_puzzle[row][col] = 0
+                                last_input_was_mistake = True
+                                pass
+                        else:  # Backspace
                             sudoku_puzzle[row][col] = 0
-                            last_input_was_mistake = True
+                            user_view[row][col] = 0
+                            last_input_was_mistake = False
                             pass
         draw_grid_lines_only(screen)
         pygame.display.flip()  # Displays board after taking all events into consideration
