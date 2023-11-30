@@ -157,13 +157,6 @@ def start_game(difficulty):
         screen.fill(WHITE)  # Fill the screen with a white background to start off
         draw_grid(screen, sudoku_puzzle, playable_field, solved_puzzle)  #  Drawing the sudoku grid on top of the white background
         # pygame.draw.rect(screen, RED, (50, 50, 100, 100)) # what is this red box for? - howard
-        game_solved = True
-        for row in sudoku_puzzle:
-            if 0 in row:
-                game_solved = False
-                break
-        if game_solved:
-            win_popup(screen)
 
         # Draw Hint button
         pygame.draw.rect(screen, LIGHTGRAY, hint_button)
@@ -178,6 +171,10 @@ def start_game(difficulty):
         else:
             mistakes_text = font.render(f"Allowed Mistakes: {mistakes_remaining}", True, BLACK)
         screen.blit(mistakes_text, (10, 610))
+
+        if sudoku_puzzle == solved_puzzle:
+            pygame.display.flip()  # Update the screen
+            win_popup(screen)
 
         if mistakes_remaining <= 0:
             pygame.display.flip()  # Update the screen so the user can see that they have no mistakes left
