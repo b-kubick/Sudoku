@@ -2,7 +2,6 @@ import pygame
 import sys
 import random
 import copy
-from tkinter import messagebox
 from solver import is_valid, find_empty_cell, solve_sudoku, generate_sudoku
 import optionsWindow
 
@@ -105,9 +104,28 @@ def provide_hint(screen, sudoku_puzzle, playable_field, solved_puzzle):
     return None, None, None  # No valid hint found
 
 
-def game_over_popup():
-    messagebox.showinfo('Game Over!', 'You entered too many mistakes.')
-    optionsWindow.OptionsWindow()
+def game_over_popup(screen):
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(1000)
+    large_font = pygame.font.Font(None, 60)
+    small_font = pygame.font.Font(None, 30)
+    screen.fill(LIGHTRED)
+    basic_lose_text = large_font.render("Game Over!", True, BLACK)
+    lose_description = small_font.render("You entered too many mistakes.", True, BLACK)
+    screen.blit(basic_lose_text, (175, 295))
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(2000)
+    screen.blit(lose_description, (135, 355))
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(1000)
+    # messagebox.showinfo('Game Over!', 'You entered too many mistakes.')
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:  # Click anywhere to return to the main menu (placeholder for now)
+                optionsWindow.OptionsWindow()
 
 def win_popup(screen):
     pygame.display.flip()  # Update screen
@@ -118,8 +136,14 @@ def win_popup(screen):
     screen.blit(basic_win_text, (210, 295))
     pygame.display.flip()  # Update screen
     pygame.time.delay(1000)
-    messagebox.showinfo('Congratulations!', 'You successfully solved the sudoku puzzle!')
-    optionsWindow.OptionsWindow()
+    # messagebox.showinfo('Congratulations!', 'You successfully solved the sudoku puzzle!')
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:  # Click anywhere to return to the main menu (placeholder for now)
+                optionsWindow.OptionsWindow()
 
 
 def start_game(difficulty):
@@ -178,7 +202,7 @@ def start_game(difficulty):
 
         if mistakes_remaining <= 0:
             pygame.display.flip()  # Update the screen so the user can see that they have no mistakes left
-            game_over_popup()
+            game_over_popup(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
