@@ -2,7 +2,6 @@ import pygame
 import sys
 import random
 import copy
-from tkinter import messagebox
 from solver import is_valid, find_empty_cell, solve_sudoku, generate_sudoku
 import optionsWindow
 
@@ -105,21 +104,69 @@ def provide_hint(screen, sudoku_puzzle, playable_field, solved_puzzle):
     return None, None, None  # No valid hint found
 
 
-def game_over_popup():
-    messagebox.showinfo('Game Over!', 'You entered too many mistakes.')
-    optionsWindow.OptionsWindow()
-
-def win_popup(screen):
+def game_over_popup(screen):
+    DEFAULT_BUTTON_COLOR = (150,150,147)
+    HOVER_BUTTON_COLOR = (217,217,214)
     pygame.display.flip()  # Update screen
     pygame.time.delay(1000)
-    font = pygame.font.Font(None, 60)
+    large_font = pygame.font.Font(None, 60)
+    small_font = pygame.font.Font(None, 30)
+    screen.fill(LIGHTRED)
+    basic_lose_text = large_font.render("Game Over!", True, BLACK)
+    lose_description = small_font.render("You entered too many mistakes.", True, BLACK)
+    screen.blit(basic_lose_text, (175, 295))
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(2000)
+    screen.blit(lose_description, (135, 355))
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(1000)
+    menu_button = pygame.Rect(222, 590, 150, 50)
+    while True:
+        color = DEFAULT_BUTTON_COLOR
+        if menu_button.collidepoint(pygame.mouse.get_pos()):
+            color = HOVER_BUTTON_COLOR
+        pygame.draw.rect(screen, color, menu_button)
+        menu_text = small_font.render("Main Menu", True, BLACK)
+        text_rect = menu_text.get_rect(center=menu_button.center)
+        screen.blit(menu_text, text_rect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:  # Click anywhere to return to the main menu (placeholder for now)
+                if menu_button.collidepoint(pygame.mouse.get_pos()):
+                    optionsWindow.OptionsWindow()
+        pygame.display.flip()
+
+def win_popup(screen):
+    DEFAULT_BUTTON_COLOR = (150, 150, 147)
+    HOVER_BUTTON_COLOR = (217, 217, 214)
+    pygame.display.flip()  # Update screen
+    pygame.time.delay(1000)
+    large_font = pygame.font.Font(None, 60)
+    small_font = pygame.font.Font(None, 30)
     screen.fill(WHITE)
-    basic_win_text = font.render("You win!", True, BLACK)
+    basic_win_text = large_font.render("You win!", True, BLACK)
     screen.blit(basic_win_text, (210, 295))
     pygame.display.flip()  # Update screen
     pygame.time.delay(1000)
-    messagebox.showinfo('Congratulations!', 'You successfully solved the sudoku puzzle!')
-    optionsWindow.OptionsWindow()
+    menu_button = pygame.Rect(222, 590, 150, 50)
+    while True:
+        color = DEFAULT_BUTTON_COLOR
+        if menu_button.collidepoint(pygame.mouse.get_pos()):
+            color = HOVER_BUTTON_COLOR
+        pygame.draw.rect(screen, color, menu_button)
+        menu_text = small_font.render("Main Menu", True, BLACK)
+        text_rect = menu_text.get_rect(center=menu_button.center)
+        screen.blit(menu_text, text_rect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:  # Click anywhere to return to the main menu (placeholder for now)
+                if menu_button.collidepoint(pygame.mouse.get_pos()):
+                    optionsWindow.OptionsWindow()
+        pygame.display.flip()
 
 
 def start_game(difficulty):
@@ -178,7 +225,7 @@ def start_game(difficulty):
 
         if mistakes_remaining <= 0:
             pygame.display.flip()  # Update the screen so the user can see that they have no mistakes left
-            game_over_popup()
+            game_over_popup(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
